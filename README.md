@@ -1,5 +1,4 @@
 # followMe
-# followMe
 
 Roboter folgt einem Ultraschallsignal. 
 
