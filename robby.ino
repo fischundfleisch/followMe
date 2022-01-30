@@ -2,6 +2,8 @@ const int ECHO_FRONT = 2;
 const int ECHO_LEFT = 3;
 const int ECHO_RIGHT = 4;
 const int TRIGGER_FRONT = 5;
+const int TRIGGER_LEFT = 6;
+const int TRIGGER_RIGHT = 7;
 const unsigned long SCAN_FREQ = 1UL * 1000UL;
 
 unsigned long scan_timer_ = 0;
@@ -24,12 +26,16 @@ void setup() {
   digitalWrite(ECHO_RIGHT, LOW);
   pinMode(TRIGGER_FRONT, OUTPUT);
   digitalWrite(TRIGGER_FRONT, LOW);       //kleiner Scheißer.
+  pinMode(TRIGGER_LEFT, OUTPUT);
+  digitalWrite(TRIGGER_LEFT, LOW);
+  pinMode(TRIGGER_RIGHT, LOW);
+  digitalWrite(TRIGGER_RIGHT, LOW);
 
   // hier eine Art Kalibrierung bei bekannter Entfernung von 0 cm einführen
   //erst nach erfolgreicher Kalibrierung darf zusammen gearbeitet werden.
   // Kalibrierung nur mit Front, der Rest darf diesen Wert übernehmen.
   while (!pairing()) {
-    delayMicroseconds(1);
+    delay(2);
   }
 }
 
@@ -52,31 +58,57 @@ void trigger_front() {
   digitalWrite(TRIGGER_FRONT, LOW);
 }
 
-void loop() {
-  unsigned long act_time = millis();
-  unsigned long time_span = act_time - scan_timer_;
+void trigger_left(){
+  digitalWrite(TRIGGER_LEFT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_LEFT, LOW);
+  }
+  
 
-  if (time_span > SCAN_FREQ) {
-    Serial.println("Starte Messung");
-    trigger_front();
-    duration_front = pulseIn(ECHO_FRONT, HIGH); //returns micros
-    Serial.println(duration_front);
-    distance_front = (duration_front * 0.03432) + 0.5; // +0.5 zum Runden
-    Serial.print("Front: ");
-    Serial.print(distance_front);
-    Serial.println(" cm");
-
-    duration_left = pulseIn(ECHO_LEFT, HIGH);
-    distance_left = (duration_left * 0.03432) + 0.5;
-    Serial.print("Left: ");
-    Serial.print(distance_left);
-    Serial.println(" cm");
-
-    duration_right = pulseIn(ECHO_RIGHT, HIGH);
-    distance_right = (duration_right * 0.03432) + 0.5;
-    Serial.print("Right: ");
-    Serial.print(distance_right);
-    Serial.println(" cm");
+void trigger_right(){
+  digitalWrite(TRIGGER_RIGHT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_RIGHT, LOW);
   }
 
+void getDistance_front(){
+  duration_front=0;
+    trigger_front();
+    while (digitalRead(ECHO_FRONT)==HIGH);
+    delay(2);
+    trigger_front();
+    duration_front = pulseIn(ECHO_FRONT, HIGH);
+    distance_front = (duration_front * 0.03432) + 0.5;
+    Serial.println(distance_front);
+}
+
+void getDistance_left(){
+  duration_left = 0;
+  trigger_left();
+  while(digitalRead(ECHO_LEFT)==HIGH);
+  delay(2);
+  trigger_left();
+  duration_left = pulseIn(ECHO_LEFT, HIGH);
+  distance_left = (duration_left*0.03432) + 0.5;
+  Serial.println(distance_left);
+}
+
+void getDistance_right(){
+  duration_right = 0;
+  trigger_right();
+  while(digitalRead(ECHO_RIGHT)==HIGH);
+  delay(2);
+  trigger_right();
+  duration_right = pulseIn(ECHO_RIGHT, HIGH);
+  distance_right = (duration_right * 0.03432) + 0.5;
+  Serial.println(distance_right);
+}
+
+void loop() {
+Serial.println("Distanz Front:");
+getDistance_front();
+Serial.println("Distanz Links:");
+getDistance_left();
+Serial.println("Distanz Rechts:");
+getDistance_right();
 }
