@@ -4,9 +4,6 @@ const int ECHO_RIGHT = 4;
 const int TRIGGER_FRONT = 5;
 const int TRIGGER_LEFT = 6;
 const int TRIGGER_RIGHT = 7;
-const unsigned long SCAN_FREQ = 1UL * 1000UL;
-
-unsigned long scan_timer_ = 0;
 
 long duration_front = 0;
 long distance_front = 0;
@@ -44,7 +41,7 @@ bool pairing() {
 
   trigger_front();
   duration_front = pulseIn(ECHO_FRONT, HIGH);
-  distance = (duration_front * 0.03432) + 0.5;
+  distance = (duration_front *0.03432);
   if ((distance <= 1) && (distance > 0)) {
     return true;
     Serial.println("Connected");
@@ -73,42 +70,36 @@ void trigger_right(){
 
 void getDistance_front(){
   duration_front=0;
-    trigger_front();
-    while (digitalRead(ECHO_FRONT)==HIGH);
-    delay(2);
+//    trigger_front();
+//    while (digitalRead(ECHO_FRONT)==HIGH);
+//    delay(2);
     trigger_front();
     duration_front = pulseIn(ECHO_FRONT, HIGH);
-    distance_front = (duration_front * 0.03432) + 0.5;
-    Serial.println(distance_front);
+    distance_front = (duration_front * 3432);    // 0,03432 = cm
+//    Serial.println(distance_front);
 }
 
 void getDistance_left(){
   duration_left = 0;
   trigger_left();
-  while(digitalRead(ECHO_LEFT)==HIGH);
-  delay(2);
-  trigger_left();
   duration_left = pulseIn(ECHO_LEFT, HIGH);
-  distance_left = (duration_left*0.03432) + 0.5;
+  distance_left = (duration_left*3432);
   Serial.println(distance_left);
 }
 
 void getDistance_right(){
   duration_right = 0;
   trigger_right();
-  while(digitalRead(ECHO_RIGHT)==HIGH);
-  delay(2);
-  trigger_right();
   duration_right = pulseIn(ECHO_RIGHT, HIGH);
-  distance_right = (duration_right * 0.03432) + 0.5;
-  Serial.println(distance_right);
+  distance_right = (duration_right *3432);
+//  Serial.println(distance_right);
 }
 
 void loop() {
-Serial.println("Distanz Front:");
+//Serial.println("Distanz Front:");
 getDistance_front();
-Serial.println("Distanz Links:");
+//Serial.println("Distanz Links:");
 getDistance_left();
-Serial.println("Distanz Rechts:");
+//Serial.println("Distanz Rechts:");
 getDistance_right();
 }
