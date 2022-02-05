@@ -4,6 +4,8 @@ const int ECHO_RIGHT = 4;
 const int TRIGGER_FRONT = 5;
 const int TRIGGER_LEFT = 6;
 const int TRIGGER_RIGHT = 12;
+const int MOTOR_LEFT = 9;       // PMW pins. Die Richtung des Signals bestimmt das Tempo, in dem sich der Motor dreht. 
+const int MOTOR_RIGHT = 10;
 
 long duration_front = 0;
 long duration_left = 0;
@@ -28,6 +30,10 @@ void setup() {
   digitalWrite(TRIGGER_LEFT, LOW);
   pinMode(TRIGGER_RIGHT, OUTPUT);
   digitalWrite(TRIGGER_RIGHT, LOW);
+  pinMode(MOTOR_LEFT, OUTPUT);
+  digitalWrite(MOTOR_LEFT, LOW);
+  pinMode(MOTOR_RIGHT, OUTPUT);
+  digitalWrite(MOTOR_RIGHT, LOW);
 
   // hier eine Art Kalibrierung bei bekannter Entfernung von 0 cm einführen
   //erst nach erfolgreicher Kalibrierung darf zusammen gearbeitet werden.
@@ -119,6 +125,14 @@ void quicksort(int array[], int left, int right) {
   }
   if (i < right) {
     quicksort(array, i, right);
+  }
+}
+
+void motor_left(){
+  int pmw_left = 0;
+  while ((duration_left < 51000) && (duration_left != 0)) {
+    pmw_left = duration_left / 200;
+    analogWrite(MOTOR_LEFT, pmw_left);
   }
 }
 
