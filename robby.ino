@@ -130,8 +130,9 @@ void quicksort(int array[], int left, int right) {
 
 void motor_left(){
   int pmw_left = 0;
-  while ((duration_left < 51000) && (duration_left != 0)) {
-    pmw_left = duration_left / 200;
+  int duration_all = (duration_left + duration_right + duration_front) /3       // mindestens einer muss ja ein Signal haben.
+  if ((duration_all < 69900) && (duration_left != 0)) {
+    pmw_left = (duration_left + duration_front)/ 400;       // ((duration front + duration left) / 2) /200
     analogWrite(MOTOR_LEFT, pmw_left);
   }
 }
