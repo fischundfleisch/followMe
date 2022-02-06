@@ -1,3 +1,25 @@
+// Follow me robot
+// Copyright Marlene and Alexander Kaser
+// This little robot follows an ultrasound signal
+// Copyright (C) 2022  by Marlene and Alexander Kaser
+
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation,  version 3 of the License. If you use, modify 
+//    and/or redistribute it, you'll have to inform us at marlene.c.kaser@gmail.com
+
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+
+
+
 const int ECHO_FRONT = 2;
 const int ECHO_LEFT = 3;
 const int ECHO_RIGHT = 4;
@@ -45,8 +67,9 @@ void setup() {
 
 bool pairing() {
   int distance = 0;
-
-  trigger_front();
+  digitalWrite(TRIGGER_FRONT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_FRONT, LOW);
   duration_front = pulseIn(ECHO_FRONT, HIGH);
   distance = (duration_front *0.03432);
   if ((distance <= 1) && (distance > 0)) {
@@ -56,28 +79,11 @@ bool pairing() {
   return false;
 }
 
-void trigger_front() {
+void getDistance_front(){
+  duration_front=0;
   digitalWrite(TRIGGER_FRONT, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER_FRONT, LOW);
-}
-
-void trigger_left(){
-  digitalWrite(TRIGGER_LEFT, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIGGER_LEFT, LOW);
-  }
-  
-
-void trigger_right(){
-  digitalWrite(TRIGGER_RIGHT, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIGGER_RIGHT, LOW);
-  }
-
-void getDistance_front(){
-  duration_front=0;
-  trigger_front();
   duration_front = pulseIn(ECHO_FRONT, HIGH);
   Serial.print("F: ");
   Serial.println(duration_front);
@@ -85,7 +91,9 @@ void getDistance_front(){
 
 void getDistance_left(){
   duration_left = 0;
-  trigger_left();
+  digitalWrite(TRIGGER_LEFT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_LEFT, LOW);
   duration_left = pulseIn(ECHO_LEFT, HIGH);
   Serial.print("L: ");
   Serial.println(duration_left);
@@ -93,7 +101,9 @@ void getDistance_left(){
 
 void getDistance_right(){
   duration_right = 0;
-  trigger_right();
+  digitalWrite(TRIGGER_RIGHT, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_RIGHT, LOW);
   duration_right = pulseIn(ECHO_RIGHT, HIGH);
   Serial.println(duration_right);
 }
@@ -129,11 +139,20 @@ void quicksort(int array[], int left, int right) {
 }
 
 void motor_left(){
-  int pmw_left = 0;
-  int duration_all = (duration_left + duration_right + duration_front) /3       // mindestens einer muss ja ein Signal haben.
+  int pwm_left = 0;
+  int duration_all = (duration_left + duration_right + duration_front) /3;      // mindestens einer muss ja ein Signal haben.
   if ((duration_all < 69900) && (duration_left != 0)) {
-    pmw_left = (duration_left + duration_front)/ 400;       // ((duration front + duration left) / 2) /200
-    analogWrite(MOTOR_LEFT, pmw_left);
+    pwm_left = (duration_left + duration_front)/ 400;       // ((duration front + duration left) / 2) /200
+    analogWrite(MOTOR_LEFT, pwm_left);
+  }
+}
+
+void motor_right() {
+  int pwm_right = 0;
+  int duration_all = (duration_left + duration_right + duration_front) / 3;
+  if ((duration_all < 69900) && (duration_right != 0)) {
+    pwm_right = (duration_right + duration_front) / 400;
+    analogWrite(MOTOR_RIGHT, pwm_right);
   }
 }
 
