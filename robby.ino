@@ -135,6 +135,25 @@ void quicksort(int array[], int left, int right) {          // binary tree wird 
   }
 }
 
+int median(int values[], int nr_of_elements){
+return values[(nr_of_elements-1)/2];
+}
+
+int moving_median(int value, int values[],const int mem_size){      //mem_size = Größe des Arrays in bytes
+const int nr_of_elements = mem_size / sizeof(*values);              // Messwerte werden kopiert und sortiert
+int sorted_values[nr_of_elements];
+memcpy(sorted_values, values, mem_size);
+quick_sort(sorted_values, 0, nr_of_elements-1);
+
+for(int x = 0; x < nr_of_elements-1; x++){                         
+    values[x] = values[x+1];
+}
+  
+values[nr_of_elements-1] = value;                               // älterster Wert wird rausgeschmissen
+
+  return  median(sorted_values, nr_of_elements);                // neuer Median wird übergeben
+}
+
 void motor_left(){
   int pwm_left = 0;
   int duration_all = (duration_left + duration_right + duration_front) /3;      // mindestens einer muss ja ein Signal haben.
