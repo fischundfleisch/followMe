@@ -17,9 +17,6 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-
-
-
 const int ECHO_FRONT = 2;
 const int ECHO_LEFT = 3;
 const int ECHO_RIGHT = 4;
@@ -108,11 +105,11 @@ void getDistance_right(){
   Serial.println(duration_right);
 }
 
-void quicksort(int array[], int left, int right) {
+void quicksort(int array[], int left, int right) {          // binary tree wird sortiert. beim Starten ist left 0 und right 0. 
   int i = left;
   int j = right;
-  int temp = 0;
-  int pivot = array[(left+right)/2];
+  int temp = 0;     // fürs umsortieren
+  int pivot = array[(left+right)/2];      //mittelpunkt vom array
 
   while (i<=j) {
     while (array[i] < pivot) {
@@ -130,10 +127,10 @@ void quicksort(int array[], int left, int right) {
     }
   }
 
-  if (left < j) {
+  if (left < j) {                   // rekursiver aufruf mit dem kleineren Anteil des Arrays, mit neuer eingeschränkter oberen Grenze
     quicksort(array, left, j);
   }
-  if (i < right) {
+  if (i < right) {                  // -=- mit eingeschränkter unterer Grenze
     quicksort(array, i, right);
   }
 }
