@@ -33,6 +33,8 @@ long duration_right = 0;
 int values_front[5] = {0,0,0,0,0};
 int values_left[5] = {0,0,0,0,0};
 int values_right[5] = {0,0,0,0,0};
+int mem_size = 0;
+int nr_of_elements = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -60,6 +62,9 @@ void setup() {
   while (!pairing()) {
     delay(2);
   }
+  
+  mem_size = sizeof(values_front);
+  nr_of_elements = mem_size/sizeof(*values_front);
 }
 
 bool pairing() {
@@ -82,8 +87,6 @@ void getDistance_front(){
   delayMicroseconds(10);
   digitalWrite(TRIGGER_FRONT, LOW);
   duration_front = pulseIn(ECHO_FRONT, HIGH);
-  Serial.print("F: ");
-  Serial.println(duration_front);
 }
 
 void getDistance_left(){
@@ -92,8 +95,6 @@ void getDistance_left(){
   delayMicroseconds(10);
   digitalWrite(TRIGGER_LEFT, LOW);
   duration_left = pulseIn(ECHO_LEFT, HIGH);
-  Serial.print("L: ");
-  Serial.println(duration_left);
 }
 
 void getDistance_right(){
@@ -102,7 +103,6 @@ void getDistance_right(){
   delayMicroseconds(10);
   digitalWrite(TRIGGER_RIGHT, LOW);
   duration_right = pulseIn(ECHO_RIGHT, HIGH);
-  Serial.println(duration_right);
 }
 
 void quicksort(int array[], int left, int right) {          // binary tree wird sortiert. beim Starten ist left 0 und right 0. 
@@ -173,10 +173,21 @@ void motor_right() {
 }
 
 void loop() {
-Serial.println("Distanz Front:");
 getDistance_front();
-Serial.println("Distanz Links:");
+duration_front = moving_median(duration_front, values_front, mem_size);
+Serial.print("Array Front: ");
+Serial.println(duration_front);
+  
+Serial.print("Distanz Links:");
 getDistance_left();
+duration_left = moving_median(duration_left, values_left, mem_size);
+Serial.println(duration_left);    
+
 Serial.println("Distanz Rechts:");
 getDistance_right();
+duration_right = moving_median(duration_right, values_right, mem_size);
+Serial.println(duration_right);
+
+motor_left();
+motor_right();
 }
