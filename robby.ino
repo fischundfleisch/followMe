@@ -25,6 +25,7 @@ const int TRIGGER_LEFT = 6;
 const int TRIGGER_RIGHT = 12;
 const int MOTOR_LEFT = 9;       // PMW pins. Die Richtung des Signals bestimmt das Tempo, in dem sich der Motor dreht. 
 const int MOTOR_RIGHT = 10;
+const int SIGNAL_LOSS = 69900;
 
 long duration_front = 0;
 long duration_left = 0;
@@ -157,7 +158,7 @@ values[nr_of_elements-1] = value;                               // älterster We
 void motor_left(){
   int pwm_left = 0;
   int duration_all = (duration_left + duration_right + duration_front) /3;      // mindestens einer muss ja ein Signal haben.
-  if ((duration_all < 69900) && (duration_left != 0)) {
+  if ((duration_all < SIGNAL_LOSS) && (duration_left != 0)) {
     pwm_left = (duration_left + duration_front)/ 400;       // ((duration front + duration left) / 2) /200
     analogWrite(MOTOR_LEFT, pwm_left);
   }
@@ -166,11 +167,20 @@ void motor_left(){
 void motor_right() {
   int pwm_right = 0;
   int duration_all = (duration_left + duration_right + duration_front) / 3;
-  if ((duration_all < 69900) && (duration_right != 0)) {
+  if ((duration_all < SIGNAL_LOSS) && (duration_right != 0)) {
     pwm_right = (duration_right + duration_front) / 400;
     analogWrite(MOTOR_RIGHT, pwm_right);
   }
 }
+
+void motor_stop(){
+  int duration_all = (duration_left + duration_right + duration_front) / 3;
+  if (duration_all > SIGNAL_LOSS) {
+    digitalWrite(MOTOR_LEFT, LOW);
+    digitalWrite(MOTOR_RIGHT, LOW);
+  }
+}
+  
 
 void loop() {
 getDistance_front();
@@ -190,4 +200,5 @@ Serial.println(duration_right);
 
 motor_left();
 motor_right();
+motor_stop();
 }
