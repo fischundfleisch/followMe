@@ -144,7 +144,7 @@ int moving_median(int value, int values[],const int mem_size){      //mem_size =
 const int nr_of_elements = mem_size / sizeof(*values);              // Messwerte werden kopiert und sortiert
 int sorted_values[nr_of_elements];
 memcpy(sorted_values, values, mem_size);
-quick_sort(sorted_values, 0, nr_of_elements-1);
+quicksort(sorted_values, 0, nr_of_elements-1);
 
 for(int x = 0; x < nr_of_elements-1; x++){                         
     values[x] = values[x+1];
