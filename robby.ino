@@ -25,15 +25,15 @@ const int TRIGGER_LEFT = 6;
 const int TRIGGER_RIGHT = 12;
 const int MOTOR_LEFT = 9;       // PMW pins. Die Richtung des Signals bestimmt das Tempo, in dem sich der Motor dreht. 
 const int MOTOR_RIGHT = 10;
-const int SIGNAL_LOSS = 69900;
+const long SIGNAL_LOSS = 65000;
 
 long duration_front = 0;
 long duration_left = 0;
 long duration_right = 0;
 
-int values_front[5] = {0,0,0,0,0};
-int values_left[5] = {0,0,0,0,0};
-int values_right[5] = {0,0,0,0,0};
+long values_front[5] = {0,0,0,0,0};
+long values_left[5] = {0,0,0,0,0};
+long values_right[5] = {0,0,0,0,0};
 int mem_size = 0;
 int nr_of_elements = 0;
 
@@ -106,11 +106,11 @@ void getDistance_right(){
   duration_right = pulseIn(ECHO_RIGHT, HIGH);
 }
 
-void quicksort(int array[], int left, int right) {          // binary tree wird sortiert. beim Starten ist left 0 und right 0. 
+void quicksort(long array[], int left, int right) {          // binary tree wird sortiert. beim Starten ist left 0 und right 0. 
   int i = left;
   int j = right;
-  int temp = 0;     // fürs umsortieren
-  int pivot = array[(left+right)/2];      //mittelpunkt vom array
+  long temp = 0;     // fürs umsortieren
+  long pivot = array[(left+right)/2];      //mittelpunkt vom array
 
   while (i<=j) {
     while (array[i] < pivot) {
@@ -133,16 +133,16 @@ void quicksort(int array[], int left, int right) {          // binary tree wird 
   }
   if (i < right) {                  // -=- mit eingeschränkter unterer Grenze
     quicksort(array, i, right);
-  }
+  } 
 }
 
-int median(int values[], int nr_of_elements){
+long median(long values[], int nr_of_elements){
 return values[(nr_of_elements-1)/2];
 }
 
-int moving_median(int value, int values[],const int mem_size){      //mem_size = Größe des Arrays in bytes
+long moving_median(long value, long values[],const int mem_size){      //mem_size = Größe des Arrays in bytes
 const int nr_of_elements = mem_size / sizeof(*values);              // Messwerte werden kopiert und sortiert
-int sorted_values[nr_of_elements];
+long sorted_values[nr_of_elements];
 memcpy(sorted_values, values, mem_size);
 quicksort(sorted_values, 0, nr_of_elements-1);
 
@@ -184,19 +184,17 @@ void motor_stop(){
 
 void loop() {
 getDistance_front();
+Serial.print("Distanz einzeln: ");
+Serial.println(duration_front);
 duration_front = moving_median(duration_front, values_front, mem_size);
 Serial.print("Array Front: ");
 Serial.println(duration_front);
   
-Serial.print("Distanz Links:");
 getDistance_left();
 duration_left = moving_median(duration_left, values_left, mem_size);
-Serial.println(duration_left);    
 
-Serial.println("Distanz Rechts:");
 getDistance_right();
 duration_right = moving_median(duration_right, values_right, mem_size);
-Serial.println(duration_right);
 
 motor_left();
 motor_right();
