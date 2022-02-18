@@ -157,24 +157,30 @@ values[nr_of_elements-1] = value;                               // älterster We
 
 void motor_left(){
   int pwm_left = 0;
-  int duration_all = (duration_left + duration_right + duration_front) /3;      // mindestens einer muss ja ein Signal haben.
+  long duration_all = (duration_left + duration_right + duration_front) /3;      // mindestens einer muss ja ein Signal haben.
   if ((duration_all < SIGNAL_LOSS) && (duration_left != 0)) {
     pwm_left = (duration_left + duration_front)/ 400;       // ((duration front + duration left) / 2) /200
+    if(pwm_left > 255) {
+      pwm_left = 255;
+    }
     analogWrite(MOTOR_LEFT, pwm_left);
   }
 }
 
 void motor_right() {
   int pwm_right = 0;
-  int duration_all = (duration_left + duration_right + duration_front) / 3;
+  long duration_all = (duration_left + duration_right + duration_front) / 3;
   if ((duration_all < SIGNAL_LOSS) && (duration_right != 0)) {
-    pwm_right = (duration_right + duration_front) / 400;
+    pwm_right = (duration_right + duration_front) / 400;           // ACHTUNG: PWM hat kein Cap, es rollt over und fängt bei 0 wieder an
+    if (pwm_right > 255) {
+      pwm_right = 255;
+    }
     analogWrite(MOTOR_RIGHT, pwm_right);
   }
 }
 
 void motor_stop(){
-  int duration_all = (duration_left + duration_right + duration_front) / 3;
+  long duration_all = (duration_left + duration_right + duration_front) / 3;
   if (duration_all > SIGNAL_LOSS) {
     digitalWrite(MOTOR_LEFT, LOW);
     digitalWrite(MOTOR_RIGHT, LOW);
@@ -184,11 +190,7 @@ void motor_stop(){
 
 void loop() {
 getDistance_front();
-Serial.print("Distanz einzeln: ");
-Serial.println(duration_front);
 duration_front = moving_median(duration_front, values_front, mem_size);
-Serial.print("Array Front: ");
-Serial.println(duration_front);
   
 getDistance_left();
 duration_left = moving_median(duration_left, values_left, mem_size);
