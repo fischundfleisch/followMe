@@ -159,9 +159,12 @@ void motor_left() {
   int pwm_left = 0;
   long duration_all = (duration_left + duration_right + duration_front) / 3;     // mindestens einer muss ja ein Signal haben.
   if ((duration_all < SIGNAL_LOSS) && (duration_left != 0)) {
-    pwm_left = duration_left / 270;       // armseliger Versuch die Geschwindigkeit an die Entfernung anzupassen
+    pwm_left = (duration_left + duration_front) / 540;     // armseliger Versuch die Geschwindigkeit an die Entfernung anzupassen
     if (pwm_left > 255) {
       pwm_left = 255;
+    }
+    if (duration_left <= 0) {
+      digitalWrite(MOTOR_LEFT, LOW);
     }
     analogWrite(MOTOR_LEFT, pwm_left);
     Serial.println(pwm_left);
@@ -171,14 +174,34 @@ void motor_left() {
 void motor_right() {
   int pwm_right = 0;
   long duration_all = (duration_left + duration_right + duration_front) / 3;
-  if ((duration_all < SIGNAL_LOSS) && (duration_right != 0)) {
-    pwm_right = duration_right /   270;          // ACHTUNG: PWM hat kein Cap, es rollt over und fängt bei 0 wieder an
-    if (pwm_right > 255) {
-      pwm_right = 255;
+  if (duration_front <= duration_right) {
+    if ((duration_all < SIGNAL_LOSS) && (duration_right != 0)) {
+      pwm_right = (duration_front + duration_right) /   540;          // ACHTUNG: PWM hat kein Cap, es rollt over und fängt bei 0 wieder an
+      if (pwm_right > 255) {
+        pwm_right = 255;
+      }
+      if (duration_right <= 0) {
+        digitalWrite(MOTOR_RIGHT, LOW);
+      }
+      analogWrite(MOTOR_RIGHT, pwm_right);
+      Serial.println(pwm_right);
     }
-    analogWrite(MOTOR_RIGHT, pwm_right);
-    Serial.println(pwm_right);
   }
+}
+
+bool signal_search() {
+  if ((duration_front > duration_right) || (duration_front > duration_left)) {    // Signal kommt von der Seite oder von hinten
+    digitalWrite(MOTOR_LEFT, LOW);
+    digitalWrite(MOTOR_RIGHT, LOW);
+    if (duration_right > duration_left) {         // das Signal ist links
+      analogWrite(MOTOR_RIGHT, 50);               // dreh dich langsam nach links
+    }
+    if (duration_right < duration_left) {      // das Signal ist rechts
+      analogWrite(MOTOR_LEFT, 50);                // dreh dich langsam nach rechts
+    }
+    return true;
+  }
+  return false;
 }
 
 void motor_stop() {
@@ -186,6 +209,9 @@ void motor_stop() {
   if (duration_all > SIGNAL_LOSS) {
     digitalWrite(MOTOR_LEFT, LOW);
     digitalWrite(MOTOR_RIGHT, LOW);
+    while (!pairing()) {
+      delay(2);
+    }
   }
 }
 
@@ -199,6 +225,10 @@ void loop() {
 
   getDistance_right();
   duration_right = moving_median(duration_right, values_right, mem_size);
+
+if (signal_search()==true){
+  return;
+}
 
   motor_left();
   motor_right();
