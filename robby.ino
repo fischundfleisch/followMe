@@ -57,9 +57,6 @@ void setup() {
   pinMode(MOTOR_RIGHT, OUTPUT);
   digitalWrite(MOTOR_RIGHT, LOW);
 
-  // hier eine Art Kalibrierung bei bekannter Entfernung von 0 cm einführen
-  //erst nach erfolgreicher Kalibrierung darf zusammen gearbeitet werden.
-  // Kalibrierung nur mit Front, der Rest darf diesen Wert übernehmen.
   while (!pairing()) {
     delay(2);
   }
@@ -82,23 +79,19 @@ bool pairing() {
   return false;
 }
 
-void getDistance_front() {
+void getDistance() {
   duration_front = 0;
   digitalWrite(TRIGGER_FRONT, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER_FRONT, LOW);
   duration_front = pulseIn(ECHO_FRONT, HIGH);
-}
 
-void getDistance_left() {
   duration_left = 0;
   digitalWrite(TRIGGER_LEFT, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER_LEFT, LOW);
   duration_left = pulseIn(ECHO_LEFT, HIGH);
-}
 
-void getDistance_right() {
   duration_right = 0;
   digitalWrite(TRIGGER_RIGHT, HIGH);
   delayMicroseconds(10);
@@ -217,13 +210,9 @@ void motor_stop() {
 
 
 void loop() {
-  getDistance_front();
+  getDistance();
   duration_front = moving_median(duration_front, values_front, mem_size);
-
-  getDistance_left();
   duration_left = moving_median(duration_left, values_left, mem_size);
-
-  getDistance_right();
   duration_right = moving_median(duration_right, values_right, mem_size);
 
 if (signal_search()==true){
