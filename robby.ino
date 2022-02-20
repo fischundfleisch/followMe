@@ -156,6 +156,9 @@ void motor_left() {
     if (pwm_left > 255) {
       pwm_left = 255;
     }
+    if ((pwm_left < 50) && (duration_left > 0)) {           // sonst läuft er nicht wirklich an, kann beim Prototypen wahrscheinlich ignoriert werden
+      pwm_left = 50;
+    }
     if (duration_left <= 0) {
       digitalWrite(MOTOR_LEFT, LOW);
     }
@@ -167,17 +170,35 @@ void motor_left() {
 void motor_right() {
   int pwm_right = 0;
   long duration_all = (duration_left + duration_right + duration_front) / 3;
-  if (duration_front <= duration_right) {
     if ((duration_all < SIGNAL_LOSS) && (duration_right != 0)) {
       pwm_right = (duration_front + duration_right) /   540;          // ACHTUNG: PWM hat kein Cap, es rollt over und fängt bei 0 wieder an
       if (pwm_right > 255) {
         pwm_right = 255;
+      }
+      if ((pwm_right < 50) && (duration_right > 0)) {
+        pwm_right = 50;
       }
       if (duration_right <= 0) {
         digitalWrite(MOTOR_RIGHT, LOW);
       }
       analogWrite(MOTOR_RIGHT, pwm_right);
       Serial.println(pwm_right);
+    }
+}
+
+void straight_ahead() {
+  if ((duration_front < duration_left) && (duration_front < duration_right)) {      // Signal kommt definitiv von vorne, bitte einfach geradeaus fahren
+    if (duration_front < 10000) {
+      analogWrite(MOTOR_RIGHT, 50);
+      analogWrite(MOTOR_LEFT, 50);
+    }
+    else if ((duration_front >= 10000) && (duration_front < 30000)) {
+      analogWrite(MOTOR_RIGHT, 150);
+      analogWrite(MOTOR_LEFT, 150);
+    }
+    else {
+      analogWrite(MOTOR_RIGHT, 255);
+      analogWrite(MOTOR_LEFT, 255);
     }
   }
 }
@@ -219,6 +240,7 @@ if (signal_search()==true){
   return;
 }
 
+  straight_ahead();       // braucht noch die Bedingung wann nur geradeaus gefahren werden soll
   motor_left();
   motor_right();
   motor_stop();
